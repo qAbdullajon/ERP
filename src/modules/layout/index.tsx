@@ -78,6 +78,7 @@ const Layout = (props: Props) => {
             sx={{
               display: "flex",
               alignItems: "center",
+              cursor:'pointer',
               textDecoration: "none",
               color: "inherit",
               padding: "13px 16px 13px 30px",

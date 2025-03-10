@@ -1,11 +1,35 @@
 @import "tailwindcss";
 
-*{
+@font-face {
+  font-family: "Gilroy";
+  src: url("/public/fonts/Gilroy-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Gilroy";
+  src: url("/public/fonts/Gilroy-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Gilroy";
+  src: url("/public/fonts/Gilroy-ExtraBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Gilroy";
+  src: url("/public/fonts/Gilroy-ExtraBold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Gilroy', sans-serif;
-  user-select: none;
+  font-family: "Gilroy", sans-serif;
 }
 
 .MuiSvgIcon-root path {

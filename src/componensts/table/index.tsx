@@ -1,3 +1,4 @@
+import { KeyboardArrowDown, KeyboardArrowUp } from "@mui/icons-material";
 import {
   Table,
   TableBody,
@@ -6,24 +7,31 @@ import {
   TableHead,
   TableRow,
   Paper,
-  TablePagination,
   Checkbox,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { useState } from "react";
 
 interface TableType {
-  columns: { key: string; title: string; flex: number }[];
+  columns: { key: string; title: any; flex: number }[];
   data: any[];
   pagination: { page: number; pageSize: number; total: number };
   onChange: (pagination: {
     page: number;
     pageSize: number;
     total: number;
-    search: "";
+    search: string;
+    status: string;
   }) => void;
 }
 
-const GlobalTable = ({ columns, data, pagination, onChange }: TableType) => {
+const GlobalTable = ({
+  columns,
+  data,
+  pagination,
+  onChange,
+}: TableType) => {
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
 
   const handleSelectAll = () => {
@@ -38,12 +46,29 @@ const GlobalTable = ({ columns, data, pagination, onChange }: TableType) => {
     );
   };
 
+  const handleStatusChange = (event: any) => {
+    const newStatus = event.target.value;
+    
+    onChange({ ...pagination, status: newStatus, search: "" });
+  };
+
   return (
     <TableContainer
       component={Paper}
-      sx={{ marginTop: "15px", boxShadow: "none" }}
+      sx={{
+        marginTop: "15px",
+        boxShadow: "none",
+        width: "100%",
+        overflowX: "auto",
+      }}
     >
-      <Table sx={{ borderCollapse: "separate", borderSpacing: "0 3px" }}>
+      <Table
+        sx={{
+          borderCollapse: "separate",
+          borderSpacing: "0 3px",
+          minWidth: "2200px",
+        }}
+      >
         <TableHead sx={{ backgroundColor: "#122349" }}>
           <TableRow sx={{ height: "50px" }}>
             <TableCell width={"10px"}>
@@ -56,8 +81,9 @@ const GlobalTable = ({ columns, data, pagination, onChange }: TableType) => {
                   padding: 1,
                   marginLeft: "13px",
                   borderRadius: 1,
-                  "&.Mui-checked": { color: "#49BE6A" },
-                  "&.MuiCheckbox-indeterminate": { color: "#49BE6A" },
+                  "&.Mui-checked, &.MuiCheckbox-indeterminate": {
+                    color: "#49BE6A",
+                  },
                   "&:hover": { backgroundColor: "white" },
                 }}
                 checked={selectedRows.length === data.length && data.length > 0}
@@ -75,8 +101,6 @@ const GlobalTable = ({ columns, data, pagination, onChange }: TableType) => {
                   fontSize: "14px",
                   fontWeight: "500",
                   textTransform: "uppercase",
-                  fontFamily: "Gilroy",
-                  minWidth: col.key === "id" ? "50px" : "auto",
                 }}
               >
                 {col.title}
@@ -84,52 +108,22 @@ const GlobalTable = ({ columns, data, pagination, onChange }: TableType) => {
             ))}
           </TableRow>
         </TableHead>
-        <TableBody sx={{ transform: "translateY(-4px)" }}>
-          {data.map((row) => {
-            const isSelected = selectedRows.includes(row.id);
-            return (
-              <TableRow
-                key={row.id}
-                sx={{
-                  border: "none",
-                  backgroundColor: isSelected ? "#E6F4FF" : "#F6FBFF",
-                }}
-              >
-                <TableCell sx={{ border: "none" }}>
-                  <Checkbox
-                    sx={{
-                      color: "#122349",
-                      "&.Mui-checked": { color: "#122349" },
-                    }}
-                    checked={isSelected}
-                    onChange={() => handleSelect(row.id)}
-                  />
-                </TableCell>
-                {columns.map((col) => (
-                  <TableCell key={col.key} sx={{ border: "none" }}>
-                    {row[col.key]}
-                  </TableCell>
-                ))}
-              </TableRow>
-            );
-          })}
+        <TableBody>
+          {data.map((row) => (
+            <TableRow key={row.id}>
+              <TableCell width={"10px"}>
+                <Checkbox
+                  checked={selectedRows.includes(row.id)}
+                  onChange={() => handleSelect(row.id)}
+                />
+              </TableCell>
+              {columns.map((col) => (
+                <TableCell key={col.key}>{row[col.key]}</TableCell>
+              ))}
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
-      <TablePagination
-        component="div"
-        count={pagination.total}
-        page={pagination.page - 1} 
-        rowsPerPage={pagination.pageSize}
-        onPageChange={(_, newPage) =>
-          onChange({
-            page: newPage + 1,
-            pageSize: pagination.pageSize,
-            total: pagination.total,
-            search: "",
-          })
-        }
-        rowsPerPageOptions={[]} 
-      />
     </TableContainer>
   );
 };

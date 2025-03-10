@@ -1,141 +1,32 @@
-import { Avatar, Box, Button, ButtonBase, Typography } from "@mui/material";
+import { Box, Button, ButtonBase, Typography } from "@mui/material";
 import { useState, useEffect } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import { GlobalTable } from "@componensts";
 import { useGetLidsQuery } from "../hooks/queries";
-import TelegramIcon from "@mui/icons-material/Telegram";
-import SouthWestIcon from "@mui/icons-material/SouthWest";
-import CallIcon from "@mui/icons-material/Call";
-import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
-import StatusMadal from "./status-madal";
-import { LidsInterface } from "../types";
+import CloseIcon from "@mui/icons-material/Close";
+import { TableDataItems } from "./table-data";
+import TableColumns from "./table-columns";
+import { useTableStatus } from "../hooks/use-table-status";
+import { useColumnsEdit } from "../hooks/use-columns-edite";
+import ViewColumnIcon from "@mui/icons-material/ViewColumn";
+import { StatusModal } from "./status-madal";
+import { TableColumnsEdit } from "./table-columns-edit";
+import { useAddMadal } from "../hooks/use-add-modal";
+import AddToLidMadal from "./add-lid-modal";
 
 const Lidlar = () => {
+  const { status, removeStatus } = useTableStatus();
+  const { onOpen } = useColumnsEdit();
+  const {onOpen:handleAddLid} = useAddMadal()
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: 5,
     total: 0,
     search: "",
   });
-  const [open, setOpen] = useState(false);
-  const handleOpen = async () => {
-    setOpen(true);
-  };
 
-  const handleClose = () => setOpen(false);
-  const [status, setStatus] = useState("");
-  const [userId, setuserId] = useState("");
-
-  const openStatusMadal = (item: any) => {
-    handleOpen();
-    setStatus(item?.status || "Status yo'q");
-    setuserId(item.id);
-  };
   const { data } = useGetLidsQuery(pagination);
-
-  const tableData =
-    data?.map((item: LidsInterface) => ({
-      id: item?.id || "N/A",
-      fullName: (
-        <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <Avatar
-            alt={item?.user?.fullName || "No Name"}
-            src={item?.user?.profileImage || "/public/images/Avatar.png"}
-          />
-          <Box sx={{ display: "flex", flexDirection: "column" }}>
-            <Typography
-              variant="body2"
-              sx={{ color: "black", fontWeight: 500, fontFamily: "Gilroy" }}
-            >
-              {item?.user?.fullName || "No Name"}
-            </Typography>
-            <Typography
-              sx={{ color: "#6E737B", fontSize: "12px", fontFamily: "Gilroy" }}
-            >
-              {item?.user?.createdAt || "N/A"}
-            </Typography>
-          </Box>
-        </Box>
-      ),
-      phone: (
-        <Box
-          sx={{
-            display: "flex",
-            gap: "5px",
-            color: "#263145",
-            fontWeight: 500,
-            fontSize: "14px",
-            letterSpacing: "0%",
-            lineHeight: "100%",
-          }}
-        >
-          <span style={{ fontFamily: "Gilroy" }}>
-            {item?.phone?.number || "N/A"}
-          </span>
-          {item.phone.isTelegram && (
-            <Box className="w-[14px] h-[14px] bg-[#0088CC] rounded-full flex justify-center items-center">
-              <TelegramIcon
-                sx={{ color: "white", fontSize: "12px", paddingRight: "1px" }}
-              />
-            </Box>
-          )}
-        </Box>
-      ),
-      lastContact: (
-        <Box sx={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: "5px" }}>
-            <SouthWestIcon
-              sx={{ width: "14px", height: "14px" }}
-              color={item?.lastContact?.isCall ? "success" : "error"}
-            />
-            <CallIcon sx={{ width: "14px", height: "14px" }} />
-            <span className="text-[#6E737B] text-[10px] font-medium">
-              {item?.lastContact?.createdAt || "N/A"}
-            </span>
-          </Box>
-          <Typography
-            variant="body2"
-            sx={{
-              maxWidth: "360px",
-              fontFamily: "Gilroy",
-              fontWeight: 500,
-              color: "#000",
-              display: "-webkit-box",
-              WebkitBoxOrient: "vertical",
-              WebkitLineClamp: 2,
-              overflow: "hidden",
-            }}
-          >
-            {item?.lastContact?.description || "No description available"}
-          </Typography>
-        </Box>
-      ),
-      status: (
-        <div>
-          <ButtonBase
-            type="submit"
-            onClick={()=>openStatusMadal(item)}
-            sx={{
-              width: "225px",
-              justifyContent: "space-between",
-              fontSize: "16px",
-              fontWeight: "500",
-              border: `2px solid ${
-                item?.status === "Status yo'q" ? "#FF5454" : "#3D444F"
-              }`,
-              padding: "5px",
-              color: `${
-                item?.status === "Status yo'q" ? "#FF5454" : "#122349"
-              }`,
-              borderRadius: "2px",
-            }}
-          >
-            {item?.status || "Status yo'q"}
-            <UnfoldMoreIcon />
-          </ButtonBase>
-        </div>
-      ),
-    })) || [];
+  const tableData = TableDataItems(data);
 
   useEffect(() => {
     if (data) {
@@ -146,13 +37,7 @@ const Lidlar = () => {
     }
   }, [data]);
 
-  const columns = [
-    { key: "id", title: "ID", flex: 1 },
-    { key: "fullName", title: "Ism-familiya", flex: 1 },
-    { key: "phone", title: "Telefon raqam", flex: 1 },
-    { key: "lastContact", title: "So’nggi aloqa", flex: 1 },
-    { key: "status", title: "Status", flex: 1 },
-  ];
+  const columns = TableColumns();
 
   return (
     <>
@@ -167,9 +52,69 @@ const Lidlar = () => {
           <Typography variant="h5" fontWeight="700">
             LIDLAR ({pagination.total})
           </Typography>
-          <Button color="inherit">
+          <Button onClick={handleAddLid} color="inherit">
             <AddIcon color="inherit" fontSize="large" />
           </Button>
+        </Box>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          {status.length > 0 ? (
+            <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span className="text-[#0D1523] font-medium text-sm">
+                Filter:
+              </span>
+              <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                {status.map((item: any) => (
+                  <Box
+                    key={item}
+                    sx={{
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      backgroundColor: "#CFD0D3",
+                      borderRadius: "60px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      padding: "6px 8px",
+                    }}
+                  >
+                    <span>{item}</span>
+                    <CloseIcon
+                      onClick={() => removeStatus(item)}
+                      sx={{
+                        cursor: "pointer",
+                        width: "14px",
+                        height: "14px",
+                        color: "#323232",
+                        paddingTop: "1px",
+                      }}
+                    />
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          ) : (
+            <div></div>
+          )}
+          <ButtonBase
+            onClick={onOpen}
+            sx={{
+              fontSize: "14px",
+              fontWeight: "500",
+              display: "flex",
+              gap: "6px",
+              alignItems: "center",
+              padding: "6px",
+            }}
+          >
+            <ViewColumnIcon />
+            <span>Ustunlarni tahrirlash</span>
+          </ButtonBase>
         </Box>
         <GlobalTable
           columns={columns}
@@ -185,13 +130,9 @@ const Lidlar = () => {
           onChange={setPagination}
         />
       </Box>
-      <StatusMadal
-        open={open}
-        handleClose={handleClose}
-        status={status}
-        onStatusChange={setStatus}
-        userId={userId}
-      />
+      <StatusModal />
+      <TableColumnsEdit />
+      <AddToLidMadal />
     </>
   );
 };

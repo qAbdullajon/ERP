@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { usePatchStatus } from "../hooks/mutations";
+import { useStatusModal } from "../hooks/use-status-modal";
 
 const style = {
   position: "absolute",
@@ -23,7 +24,7 @@ const style = {
   borderRadius: "8px",
 };
 
-const statuses = [
+export const statuses = [
   { value: "status-yoq", label: "Status yo'q" },
   { value: "birinchi-kontakt", label: "Birinchi kontakt" },
   { value: "darsga-yozildi", label: "Darsga yozildi" },
@@ -32,21 +33,8 @@ const statuses = [
   { value: "aloqaga-chiqmayapti", label: "Aloqaga chiqmayapti" },
 ];
 
-interface StatusModalProps {
-  open: boolean;
-  handleClose: () => void;
-  status: string;
-  onStatusChange: (newStatus: string) => void;
-  userId: string;
-}
-
-const StatusModal = ({
-  open,
-  handleClose,
-  status,
-  onStatusChange,
-  userId,
-}: StatusModalProps) => {
+export const StatusModal = () => {
+  const {isOpen, onClose, userId, status} = useStatusModal()
   const [selectedStatus, setSelectedStatus] = useState(status);
   const { mutate } = usePatchStatus();
 
@@ -61,14 +49,13 @@ const StatusModal = ({
 
   const handleSave = async () => {
     mutate({ id: userId, status: selectedStatus });
-    onStatusChange(selectedStatus);
-    handleClose()
+    onClose();
   };
 
   return (
     <Modal
-      open={open}
-      onClose={handleClose}
+      open={isOpen}
+      onClose={onClose}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
     >
@@ -87,7 +74,7 @@ const StatusModal = ({
           </span>
           <CloseIcon
             sx={{ fontSize: "28px" }}
-            onClick={handleClose}
+            onClick={onClose}
             style={{ cursor: "pointer" }}
           />
         </Box>
@@ -106,20 +93,18 @@ const StatusModal = ({
                 },
               }}
               inputProps={{ "aria-label": "Without label" }}
-              MenuProps={{
-                MenuListProps: {
-                  sx: {
-                    "& .MuiMenuItem-root": {
-                      "&:hover": {
-                        backgroundColor: "rgba(200, 200, 255, 0.2)",
-                      },
-                    },
-                  },
-                },
-              }}
             >
               {statuses.map((item) => (
-                <MenuItem key={item.label} value={item.label}>
+                <MenuItem sx={{
+                  "&.Mui-selected": {
+                    backgroundColor: "#49BE6A !important",
+                    color: "white",
+                  },
+                  "&:hover": {
+                    backgroundColor: "#49BE6A !important",
+                    color: "white",
+                  },
+                }} key={item.label} value={item.label}>
                   {item.label}
                 </MenuItem>
               ))}
@@ -143,7 +128,7 @@ const StatusModal = ({
               borderRadius: "4px",
               fontWeight: "500",
             }}
-            onClick={handleClose}
+            onClick={onClose}
           >
             Bekor qilish
           </ButtonBase>
@@ -166,4 +151,3 @@ const StatusModal = ({
   );
 };
 
-export default StatusModal;

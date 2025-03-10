@@ -15,4 +15,8 @@ export interface LidsInterface {
     isCall: boolean;
   };
   status: string;
+  hudud: string
+  birthday: string
+  manba: string
+  addAdmin: string
 }
