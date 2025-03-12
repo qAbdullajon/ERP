@@ -13,11 +13,14 @@ import { StatusModal } from "./status-madal";
 import { TableColumnsEdit } from "./table-columns-edit";
 import { useAddMadal } from "../hooks/use-add-modal";
 import AddToLidMadal from "./add-lid-modal";
+import { useHabarYuborish } from "../hooks/use-habar-yuborish";
+import HabarYuborishMadal from "./habar-yuborish-madal";
 
 const Lidlar = () => {
   const { status, removeStatus } = useTableStatus();
   const { onOpen } = useColumnsEdit();
-  const {onOpen:handleAddLid} = useAddMadal()
+  const { onOpen: handleAddLid } = useAddMadal()
+  const { onOpen: handleHabarYuborish } = useHabarYuborish()
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: 5,
@@ -52,6 +55,7 @@ const Lidlar = () => {
           <Typography variant="h5" fontWeight="700">
             LIDLAR ({pagination.total})
           </Typography>
+          <Button onClick={handleHabarYuborish}>habar yuborish</Button>
           <Button onClick={handleAddLid} color="inherit">
             <AddIcon color="inherit" fontSize="large" />
           </Button>
@@ -118,12 +122,14 @@ const Lidlar = () => {
         </Box>
         <GlobalTable
           columns={columns}
+          checked={true}
+          maxWidth="2000px"
           data={
             tableData
               ? tableData.slice(
-                  (pagination.page - 1) * pagination.pageSize,
-                  pagination.page * pagination.pageSize
-                )
+                (pagination.page - 1) * pagination.pageSize,
+                pagination.page * pagination.pageSize
+              )
               : []
           }
           pagination={pagination}
@@ -133,6 +139,7 @@ const Lidlar = () => {
       <StatusModal />
       <TableColumnsEdit />
       <AddToLidMadal />
+      <HabarYuborishMadal />
     </>
   );
 };
